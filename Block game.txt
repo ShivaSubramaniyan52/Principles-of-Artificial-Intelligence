@@ -1,0 +1,56 @@
+def move(block, from_stack, to_stack, state):
+    state[to_stack].append(state[from_stack].pop())
+    print(f"Move {block} from {from_stack} to {to_stack}")
+
+def goal_state(state, goal):
+    return state == goal
+
+def find_block(state, block):
+    for stack in state:
+        if block in state[stack]:
+            return stack
+    return None
+
+def blocks_world(state, goal):
+    actions = []
+
+    # Get a flat list of blocks in desired order from goal stacks
+    goal_order = []
+    for stack in goal:
+        for block in goal[stack]:
+            goal_order.append((block, stack))
+
+    # Repeatedly try to move blocks into their goal positions
+    while not goal_state(state, goal):
+        for block, target_stack in goal_order:
+            current_stack = find_block(state, block)
+
+            if current_stack != target_stack:
+                # Ensure the block is on top
+                if state[current_stack][-1] != block:
+                    # Move any blocks above it to a temporary stack
+                    while state[current_stack][-1] != block:
+                        top_block = state[current_stack][-1]
+                        for temp_stack in state:
+                            if temp_stack != current_stack and (not goal[temp_stack] or top_block not in goal[temp_stack]):
+                                move(top_block, current_stack, temp_stack, state)
+                                actions.append(f"Move {top_block} from {current_stack} to {temp_stack}")
+                                break
+
+                # Move the target block to its goal stack
+                move(block, current_stack, target_stack, state)
+                actions.append(f"Move {block} from {current_stack} to {target_stack}")
+                break  # Reevaluate after every move
+
+    return actions
+
+# Example usage:
+state = {'A': ['B'], 'B': ['C'], 'C': []}
+goal = {'A': ['C'], 'B': [], 'C': ['B']}
+
+print("\nSequence of actions:")
+actions = blocks_world(state, goal)
+for act in actions:
+    print(act)
+
+print("\nFinal state:", state)
