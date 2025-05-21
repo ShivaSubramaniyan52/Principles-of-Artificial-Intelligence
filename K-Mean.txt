@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def initialize_centroids(points, k):
+    """Randomly choose k points as initial centroids"""
+    indices = np.random.choice(len(points), k, replace=False)
+    return points[indices]
+
+def closest_centroid(points, centroids):
+    """Return index of the closest centroid for each point"""
+    distances = np.sqrt(((points - centroids[:, np.newaxis])**2).sum(axis=2))
+    return np.argmin(distances, axis=0)
+
+def move_centroids(points, closest, k):
+    """Recalculate centroids as the mean of points assigned to each"""
+    new_centroids = np.array([points[closest == i].mean(axis=0) for i in range(k)])
+    return new_centroids
+
+def kmeans(points, k, max_iter=100):
+    centroids = initialize_centroids(points, k)
+    
+    for i in range(max_iter):
+        closest = closest_centroid(points, centroids)
+        new_centroids = move_centroids(points, closest, k)
+        
+        # Stop if centroids don't change
+        if np.all(centroids == new_centroids):
+            break
+        centroids = new_centroids
+        
+    return centroids, closest
+
+# Generate random data for demonstration
+np.random.seed(42)
+points = np.vstack((np.random.randn(100, 2) + [5, 5], 
+                    np.random.randn(100, 2) + [0, 0],
+                    np.random.randn(100, 2) + [5, 0]))
+
+# Run K-Means
+k = 3
+centroids, labels = kmeans(points, k)
+
+# Plot result
+plt.scatter(points[:, 0], points[:, 1], c=labels, cmap='viridis')
+plt.scatter(centroids[:, 0], centroids[:, 1], c='red', s=200, marker='X')
+plt.title("K-Means Clustering")
+plt.show()

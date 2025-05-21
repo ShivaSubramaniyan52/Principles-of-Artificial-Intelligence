@@ -1,0 +1,17 @@
+from pyswip import Prolog
+
+prolog = Prolog()
+
+# Define facts
+prolog.assertz("parent(john, mary)")
+prolog.assertz("parent(mary, susan)")
+prolog.assertz("parent(susan, tom)")
+
+# Define a rule
+prolog.assertz("ancestor(X, Y) :- parent(X, Y)")
+prolog.assertz("ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y)")
+
+# Query: who are the ancestors of tom?
+print("Ancestors of tom:")
+for result in prolog.query("ancestor(X, tom)"):
+    print(result["X"])

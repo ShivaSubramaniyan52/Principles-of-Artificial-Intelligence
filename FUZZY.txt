@@ -1,0 +1,25 @@
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
+
+# Simple string comparison
+str1 = "apple inc"
+str2 = "Apple Incorporated"
+
+ratio = fuzz.ratio(str1.lower(), str2.lower())
+partial_ratio = fuzz.partial_ratio(str1.lower(), str2.lower())
+
+print(f"Fuzz ratio: {ratio}")
+print(f"Partial ratio: {partial_ratio}")
+
+# Find best match from a list
+choices = ["apple", "apple inc", "apple incorporated", "banana", "grape"]
+query = "Apple Inc"
+
+best_match = process.extractOne(query, choices)
+print(f"Best match: {best_match}")
+
+OUTPUT :
+
+Fuzz ratio: 67
+Partial ratio: 100
+Best match: ('apple inc', 100)

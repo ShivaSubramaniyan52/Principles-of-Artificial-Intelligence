@@ -1,0 +1,60 @@
+# Knowledge base: rules in form {"conclusion": [premises]}
+kb = {
+    'C': ['A', 'B'],   # C if A and B
+    'B': ['D'],        # B if D
+    'A': [],           # A is a fact (no premises)
+    'D': []            # D is a fact
+}
+
+def backward_chaining(kb, goal, inferred=None):
+    if inferred is None:
+        inferred = set()
+    if goal in inferred:
+        return True
+    if goal not in kb:
+        return False
+    # If no premises, goal is a fact
+    if not kb[goal]:
+        inferred.add(goal)
+        return True
+    # Recursively check premises
+    for premise in kb[goal]:
+        if not backward_chaining(kb, premise, inferred):
+            return False
+    inferred.add(goal)
+    return True
+
+# Query
+query = 'C'
+result = backward_chaining(kb, query)
+print(f"Can we infer {query}? {'Yes' if result else 'No'}")
+
+
+# Knowledge base rules: {conclusion: [premises]}
+kb = {
+    'C': ['A', 'B'],
+    'B': ['D'],
+    'A': [],
+    'D': []
+}
+
+def forward_chaining(kb, facts, query):
+    inferred = set(facts)
+    while True:
+        added = False
+        for conclusion, premises in kb.items():
+            if conclusion not in inferred and all(premise in inferred for premise in premises):
+                inferred.add(conclusion)
+                added = True
+                if conclusion == query:
+                    return True
+        if not added:
+            break
+    return query in inferred
+
+# Known facts
+facts = ['A', 'D']
+
+query = 'C'
+result = forward_chaining(kb, facts, query)
+print(f"Can we infer {query}? {'Yes' if result else 'No'}")
